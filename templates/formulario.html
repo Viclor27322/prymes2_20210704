@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clasificador de Drogas</title>
+    <script>
+        function classificarPrecio(event) {
+            event.preventDefault();
+            const open = document.getElementById('open').value;
+            const close = document.getElementById('close').value;
+            const volume = document.getElementById('volume').value;
+            const avg_vol_20d = document.getElementById('avg_vol_20d').value;
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `open=${open}&close=${close}&volume=${volume}&avg_vol_20d=${avg_vol_20d}`,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('resultado').innerText = 'Error: ' + data.error;
+                } else {
+                    document.getElementById('resultado').innerText = 'El precio de cierre ajustado es de ' + data.Precio;
+                }
+            })
+            .catch(error => {
+                document.getElementById('resultado').innerText = 'Error en la solicitud.';
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Tesla Stock Price</h1>
+    <form id="formulario" onsubmit="classificarPrecio(event)">
+        <label for="open">Precio de apertura (open):</label>
+        <input type="text" id="open" name="open"><br><br>
+        <label for="close">Precio de cierre de la acción (close):</label>
+        <input type="text" id="close" name="close"><br><br>
+        <label for="volume">Número total de acciones que se negociaron (volume):</label>
+        <input type="text" id="volume" name="volume"><br><br>
+        <label for="avg_vol_20d">Volumen promedio de negociación de los últimos 20 días de negociación (avg_vol_20d):</label>
+        <input type="text" id="avg_vol_20d" name="avg_vol_20d"><br><br>
+        <input type="submit" value="Enviar">
+    </form>
+    <p id="resultado"></p>
+</body>
+</html>
